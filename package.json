@@ -1,0 +1,16 @@
+{
+  "name": "polymer-get-start",
+  "version": "1.0.0",
+  "description": "Play around with polymer",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^0.8.1"
+  },
+  "scripts": {
+    "start": "live-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

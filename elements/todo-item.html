@@ -1,0 +1,19 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="todo-item">
+    <template>
+        <paper-checkbox>{{description}}</paper-checkbox>
+        <paper-icon-button icon="clear"></paper-icon-button>
+    </template>
+    <script>
+        Polymer({
+            is: "todo-item",
+            ready: function() {
+                this.description="hahah ah aha"
+            }
+        });
+    </script>
+</dom-module>
