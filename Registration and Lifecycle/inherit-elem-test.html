@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="./inherit-elem.html" />
+</head>
+<body>
+    <input is="inherit-elem" id="toto">
+    <script>
+
+//        HTMLImports.whenReady(function () {
+//            Polymer({
+//                is: 'main-document-element'
+//            });
+//        });
+
+        var el1 = new InheriteElem();
+        console.log(el1 instanceof HTMLInputElement); // true
+
+        var el2 = document.createElement('input', 'inherit-elem');
+        console.log(el2 instanceof HTMLInputElement); // true
+    </script>
+</body>
+</html>

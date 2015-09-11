@@ -1,0 +1,38 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="labeled-editor">
+    <template>
+        <label for={{editorid}}>{{label}}</label>
+        <input id={{editorid}} type="text" width="100px">
+        <div id="colorblock"></div>
+    </template>
+    <style>
+        div {
+            background-color: red;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+    <script>
+        Polymer({
+            is: "labeled-editor",
+            properties: {
+                label: {
+                    type: String,
+                    value: "Untitle"
+                },
+                width: {
+                    type: Number,
+                    value: "70"
+                },
+                editorid: {
+                    type: String,
+                    computed: "computeId(label)"
+                }
+            },
+
+            computeId: function(label) { return "editor_"+this.label; }
+
+        });
+    </script>
+</dom-module>

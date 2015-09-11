@@ -1,0 +1,32 @@
+<dom-module id="devguide-event2">
+
+    <template>
+        <div>I will respond</div>
+        <div>to a tap on</div>
+        <div>any of my children!</div>
+
+        <div on-tap="specialTap">I am special!</div>
+    </template>
+
+    <script>
+
+        Polymer({
+
+            is: 'devguide-event2',
+
+            listeners: {
+                'tap': 'regularTap'
+            },
+
+            regularTap: function(e) {
+                console.log("Thank you for tapping", e);
+            },
+
+            specialTap: function(e) {
+                console.log("It was special tapping", e);
+                e.cancelBubble = true;
+            }
+        });
+    </script>
+
+</dom-module>

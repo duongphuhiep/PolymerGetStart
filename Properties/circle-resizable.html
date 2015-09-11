@@ -1,0 +1,23 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="./circle-svg.html">
+
+<dom-module id="circle-resizable">
+    <template>
+        <paper-slider id="slider" min="10" max="200" value="110" on-immediate-value-change="valueChanged" on-value-change="valueChanged"></paper-slider>
+        <circle-svg id="circle"></circle-svg>
+    </template>
+    <script>
+        Polymer({
+            is: "circle-resizable",
+            valueChanged: function(e) {
+                var r = e.target.immediateValue;
+                this.$.circle.setAttribute("radius", this.$.slider.immediateValue);
+            },
+
+            ready: function() {
+                this.$.circle.setAttribute("radius", this.$.slider.immediateValue);
+            }
+        });
+    </script>
+</dom-module>

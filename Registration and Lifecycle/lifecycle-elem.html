@@ -1,23 +1,26 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <script>
-    Polymer({
+    LifeCycleElem = Polymer({
         is: "lifecycle-elem",
         created: function(){
-            console.log("created "+this.id);
+            console.log("created ", this.id);
         },
         attached: function(){
-            console.log("attached "+this.id);
+            console.log("attached ", this.id);
         },
         detached: function(){
-            console.log("detached "+this.id);
+            console.log("detached ", this.id);
         },
         attributeChanged: function(){
-            console.log("attributeChanged "+this.id);
+            console.log("attributeChanged ", this.id);
         },
         ready: function(){
-            console.log("ready "+this.id);
+            console.log("ready ", this.id);
             this.textContent="A prototype element, check it out!!!!";
+        },
+        factoryImpl: function() {
+            console.log("factoryImpl ", arguments);
         }
     });
 </script>

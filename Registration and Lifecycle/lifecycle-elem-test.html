@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="./lifecycle-elem.html" />
+</head>
+<body>
+    <lifecycle-elem id="toto"></lifecycle-elem>
+    <script>
+        console.log("Element created and registered from HTML");
+
+        var elem1 = document.createElement("lifecycle-elem", "foo", "bar");
+        console.log("Element created with document.createElement");
+        console.log(elem1);
+
+        var elem2 = new LifeCycleElem("foo", "bar"); //factoryImpl is called with foo, bar after the ready callback
+        console.log("Element created with new");
+        console.log(elem2);
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="circle-svg">
+    <template>
+        <!--<svg width=104 height=104>
+            <circle cx=52 cy=52 r=50 stroke="green" stroke-width=4 fill="yellow" />
+        </svg> -->
+        <ul>
+            <li>{{size}}</li>
+            <li>{{center}}</li>
+            <li>{{stroke}}</li>
+            <li>{{radius}}</li>
+        </ul>
+        <svg id="canvas">
+            <circle id="circle" stroke="green" fill="yellow" />
+        </svg>
+    </template>
+    <script>
+        Polymer({
+            is: "circle-svg",
+            properties: {
+                radius: {
+                    type: Number,
+                    value: 50,
+                    observer: "_radiusChanged"
+                },
+                stroke: {
+                    type: Number,
+                    value: 4
+                },
+                center: {
+                    type: Number,
+                    computed: 'computeCenter(radius, stroke)'
+                },
+                size: {
+                    type: Number,
+                    computed: 'computeSize(radius, stroke)'
+                }
+            },
+            computeCenter: function(r, strk) {
+                return r+strk/2;
+            },
+            computeSize: function(r, strk) {
+                return r*2+strk;
+            },
+            ready: function(){
+                this._update();
+            },
+            _radiusChanged: function(){
+                this._update();
+            },
+
+            _update: function() {
+                this.$.canvas.setAttribute("width", this.size);
+                this.$.canvas.setAttribute("height", this.size);
+                this.$.circle.setAttribute("cx", this.center);
+                this.$.circle.setAttribute("cy", this.center);
+                this.$.circle.setAttribute("r", this.radius);
+                this.$.circle.setAttribute("stroke-width", this.stroke);
+        }
+        });
+    </script>
+</dom-module>
