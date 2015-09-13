@@ -1,36 +1,40 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
-<script src="../bower_components/commonmark/dist/commonmark.js"></script>
+<link rel="import" href="./markdown-editor-import.html">
 
 <dom-module id="markdown-editor">
     <template>
         <div class="half">
             <div class="fix-margin">
-                <!--<textarea id="input" rows="{{rows}}" placeholder="{{placeholder}}" on-keyup="inputChangeAction"></textarea>-->
-                <iron-autogrow-textarea bind-value="{{inputValue}}" id="input", on-value-changed="inputChangeAction"></iron-autogrow-textarea>
+                <textarea id="input" rows="{{rows}}" placeholder="{{placeholder}}" on-keyup="inputChangeAction"></textarea>
             </div>
         </div>
-        <div class="half" id="preview">{{markdownHtml}}</div>
+        <div class="half" id="preview"></div>
+
+        <style>
+            textarea {
+                width: 100%;
+                resize: none;
+            }
+            .half {
+                float: left;
+                width: 50%;
+            }
+            .fix-margin {
+                margin-right: 20px;
+            }
+        </style>
     </template>
-
-    <style>
-        iron-autogrow-textarea {
-            width: 100%;
-        }
-        .half {
-            float: left;
-            width: 50%;
-        }
-        .fix-margin {
-            margin-right: 20px;
-        }
-    </style>
-
     <script>
         Polymer({
             is: 'markdown-editor',
+            created: function(){
+                this.reader = new commonmark.Parser();
+                this.writer = new commonmark.HtmlRenderer();
+            },
             ready: function() {
-                this.inputValue="aaa";
+                //yeild the distribution content to the textarea (to transclude the imperative content)
+                this.$.input.value = Polymer.dom(this).textContent;
+                this.inputChangeAction();
             },
             properties: {
                 rows: {
@@ -41,12 +45,43 @@
                 placeholder: {
                     type: String,
                     value: 'Markdown content'
-                }
+                },
+                markdownWorkingDir: String
             },
             inputChangeAction: function() {
                 this.debounce("inputChangeAction", function(){
-                    this.markdownHtml = this.$.input.value;
+                    var parsed = this.reader.parse(this.$.input.value);
+
+                    //concatenate the workingDir to every "plain image link"
+                    if (this.markdownWorkingDir) {
+                        parsed = this._fixPlainImageLink(parsed, this.markdownWorkingDir);
+                    }
+
+                    this.$.preview.innerHTML = this.writer.render(parsed);
                 }, 500);
+            },
+
+            /**
+             * - concatenate the workingDir to every "plain image link" (plain image link is filename only and does not contain any '/'). eg
+             *   - ![](image.jpg) will be transformed to ![](workingDir/image.jpg)
+             *   - ![](abc/image.jpg) won't change
+             * @param parsedMarkdown
+             * @param workingDir
+             */
+            _fixPlainImageLink: function(parsedMarkdown, workingDir) {
+                var walker = parsedMarkdown.walker();
+                var event, node;
+
+                while ((event = walker.next())) {
+                    node = event.node;
+                    if (node.type === 'Image' && event.entering) {
+                        var imageUrl = node.destination;
+                        if (imageUrl.indexOf('/') <= -1) { //if the imageUrl is plain
+                            node.destination = workingDir+imageUrl;
+                        }
+                    }
+                }
+                return parsedMarkdown;
             }
         });
     </script>
