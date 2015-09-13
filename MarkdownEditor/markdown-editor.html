@@ -1,0 +1,54 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+<script src="../bower_components/commonmark/dist/commonmark.js"></script>
+
+<dom-module id="markdown-editor">
+    <template>
+        <div class="half">
+            <div class="fix-margin">
+                <!--<textarea id="input" rows="{{rows}}" placeholder="{{placeholder}}" on-keyup="inputChangeAction"></textarea>-->
+                <iron-autogrow-textarea bind-value="{{inputValue}}" id="input", on-value-changed="inputChangeAction"></iron-autogrow-textarea>
+            </div>
+        </div>
+        <div class="half" id="preview">{{markdownHtml}}</div>
+    </template>
+
+    <style>
+        iron-autogrow-textarea {
+            width: 100%;
+        }
+        .half {
+            float: left;
+            width: 50%;
+        }
+        .fix-margin {
+            margin-right: 20px;
+        }
+    </style>
+
+    <script>
+        Polymer({
+            is: 'markdown-editor',
+            ready: function() {
+                this.inputValue="aaa";
+            },
+            properties: {
+                rows: {
+                    type: String,
+                    value: '40'
+                },
+                inputValue: String,
+                placeholder: {
+                    type: String,
+                    value: 'Markdown content'
+                }
+            },
+            inputChangeAction: function() {
+                this.debounce("inputChangeAction", function(){
+                    this.markdownHtml = this.$.input.value;
+                }, 500);
+            }
+        });
+    </script>
+
+</dom-module>
