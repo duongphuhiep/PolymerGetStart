@@ -114,6 +114,8 @@
             markSelection: function() {
                 var lineNumber = this._getLineToPreview();
                 var preview = this.$.preview;
+
+                //TODO implement a more accurate method to find the scrollTo
                 var scrollTo = preview.querySelector("*[data-sourcepos^='"+lineNumber+":']");
 
                 if (scrollTo) {
@@ -124,10 +126,12 @@
                     }
                     this.oldPreviewSelection = scrollTo;
                     scrollTo.classList.add("selected");
+//                    console.log("Preview ok for line", lineNumber);
                 }
-                else {
-                    //console.log("No preview for line", lineNumber);
-                }
+//                else {
+
+//                    console.log("No preview for line", lineNumber);
+//                }
             },
 
 //            _getCaretLineNumber: function() {
