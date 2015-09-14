@@ -5,7 +5,7 @@
     <template>
         <div class="half">
             <div class="fix-margin">
-                <textarea id="input" rows="{{rows}}" placeholder="{{placeholder}}" on-keyup="inputChangeAction"></textarea>
+                <textarea id="input" placeholder="{{placeholder}}" on-keyup="inputChangeAction" on-tap="markSelection"></textarea>
             </div>
         </div>
         <div class="half" id="preview"></div>
@@ -13,7 +13,10 @@
         <style>
             textarea {
                 width: 100%;
-                resize: none;
+                resize: vertical;
+                /*height: 200px;*/
+               /* white-space: pre;
+                word-wrap: normal;*/
             }
             .half {
                 float: left;
@@ -22,6 +25,14 @@
             .fix-margin {
                 margin-right: 20px;
             }
+            ::content.selected {
+                background-color: lightblue;
+            }
+            #preview {
+                overflow: scroll;
+                resize: vertical;
+                /*height: 200px;*/
+            }
         </style>
     </template>
     <script>
@@ -29,36 +40,138 @@
             is: 'markdown-editor',
             created: function(){
                 this.reader = new commonmark.Parser();
-                this.writer = new commonmark.HtmlRenderer();
+                this.writer = new commonmark.HtmlRenderer({ sourcepos: true });
             },
             ready: function() {
                 //yeild the distribution content to the textarea (to transclude the imperative content)
                 this.$.input.value = Polymer.dom(this).textContent;
                 this.inputChangeAction();
+
+                //set height
+                this.$.input.style.height = this.height;
+                this.$.preview.style.height = this.height;
             },
+
             properties: {
-                rows: {
+                height: {
                     type: String,
-                    value: '40'
+                    value: "800px"
                 },
-                inputValue: String,
                 placeholder: {
                     type: String,
                     value: 'Markdown content'
                 },
                 markdownWorkingDir: String
             },
+
+//            scrollAction: function() {
+//                this.debounce("scrollAction", function(){
+//                    var LINE_HEIGHT = 20; //the line-height of the textarea. TODO: find it by access the css
+//                    var textArea = this.$.input;
+//                    var lineNumber = Math.floor(textArea.scrollTop / LINE_HEIGHT) + 1;
+//
+//                    var preview = this.$.preview;
+//                    var scrollTo = preview.querySelector("*[data-sourcepos^='"+lineNumber+":']");
+//
+//                    if (scrollTo) {
+//                        scrollTo.scrollIntoView({behavior: "smooth"});
+//                        //preview.scrollTop = scrollTo.offsetTop;
+//                    }
+//                    else {
+//                        //console.log("No preview for line", lineNumber);
+//                    }
+//                }, 250);
+//            },
+
+//            scrollPreview: function() {
+//                this.debounce("scrollPreview", function(){
+//
+//                    var preview = this.$.preview;
+//                    console.log("preview scrolled to ", preview.scrollTop);
+//
+//                }, 250);
+//            },
+
             inputChangeAction: function() {
                 this.debounce("inputChangeAction", function(){
-                    var parsed = this.reader.parse(this.$.input.value);
+                    //only update preview if the content has been changed
+                    var textArea = this.$.input;
+                    if (this.cachedSrc !== textArea.value) {
+                        this.cachedSrc = textArea.value;
+                        var parsed = this.reader.parse(this.cachedSrc);
 
-                    //concatenate the workingDir to every "plain image link"
-                    if (this.markdownWorkingDir) {
-                        parsed = this._fixPlainImageLink(parsed, this.markdownWorkingDir);
+                        //concatenate the workingDir to every "plain image link"
+                        if (this.markdownWorkingDir) {
+                            parsed = this._fixPlainImageLink(parsed, this.markdownWorkingDir);
+                        }
+
+                        this.$.preview.innerHTML = this.writer.render(parsed);
                     }
-
-                    this.$.preview.innerHTML = this.writer.render(parsed);
+                    this.markSelection();
                 }, 500);
+            },
+
+            markSelection: function() {
+                var lineNumber = this._getLineToPreview();
+                var preview = this.$.preview;
+                var scrollTo = preview.querySelector("*[data-sourcepos^='"+lineNumber+":']");
+
+                if (scrollTo) {
+                    preview.scrollTop = scrollTo.offsetTop - preview.offsetHeight/2;
+
+                    if (this.oldPreviewSelection) {
+                        this.oldPreviewSelection.classList.remove("selected");
+                    }
+                    this.oldPreviewSelection = scrollTo;
+                    scrollTo.classList.add("selected");
+                }
+                else {
+                    //console.log("No preview for line", lineNumber);
+                }
+            },
+
+//            _getCaretLineNumber: function() {
+//                var textArea = this.$.input;
+//                var contentBeforeCaret = textArea.value.substr(0,textArea.selectionStart);
+//                var currentLine = this._numberOfLine(contentBeforeCaret);
+//                return currentLine;
+//            },
+
+            /**
+             * get the line number of the source to preview
+             * this function will return the last non-empty line of the source just before the caret in the textarea
+             */
+            _getLineToPreview: function() {
+                var textArea = this.$.input;
+
+                //use the character on the right of the caret
+                var pos = textArea.selectionStart;
+                if (pos+1 < textArea.value.length) {
+                    pos++;
+                }
+
+                //contentBeforeCaret is trim every spaces, \n on the right
+                var contentBeforeCaret = this._trimRightSpacesNewline(textArea.value.substr(0, pos));
+                var currentLine = this._numberOfLine(contentBeforeCaret);
+                return currentLine;
+            },
+
+            /**
+             * count number of line by counting all the returned line characters
+             * @param s: String
+             */
+            _numberOfLine: function(s) {
+                return (s.match(/\n/g) || []).length + 1;
+            },
+
+            /**
+             * trim all spaces and returned line character on the right
+             * @param s: String
+             */
+            _trimRightSpacesNewline: function(s) {
+                var pattern = /([ ]*\n[ ]*)+$/g;
+                var resu = s.replace(pattern, '');
+                return resu;
             },
 
             /**
